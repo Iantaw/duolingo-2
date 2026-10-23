@@ -17,14 +17,15 @@ try {
 		Buffer.from(process.env.DUOLINGO_JWT.split(".")[1], "base64").toString(),
 	);
 
-	const { fromLanguage, learningLanguage } = await fetch(
-		`https://www.duolingo.com/2017-06-30/users/${sub}?fields=fromLanguage,learningLanguage`,
+	const user = await fetch(
+		`https://www.duolingo.com/2017-06-30/users/${sub}?fields=fromLanguage,learningLanguage,currentCourseId,courses`,
 		{
 			headers,
 		},
 	).then(json);
 
-	console.log(`Course: ${fromLanguage} -> ${learningLanguage}`);
+	console.log(JSON.stringify({ c: user.currentCourseId, l: user.learningLanguage, courses: user.courses?.map(({ id, learningLanguage, fromLanguage, xp }) => ({ id, learningLanguage, fromLanguage, xp })) }));
+	const { fromLanguage, learningLanguage } = user;
 	let xp = 0;
 	for (let i = 0; i < process.env.LESSONS; i++) {
 		const session = await fetch(
