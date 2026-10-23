@@ -18,14 +18,17 @@ try {
 	);
 
 	const user = await fetch(
-		`https://www.duolingo.com/2017-06-30/users/${sub}?fields=fromLanguage,learningLanguage,currentCourseId,courses`,
+		`https://www.duolingo.com/2017-06-30/users/${sub}?fields=fromLanguage,learningLanguage,courses`,
 		{
 			headers,
 		},
 	).then(json);
 
-	console.log(JSON.stringify({ c: user.currentCourseId, l: user.learningLanguage, courses: user.courses?.map(({ id, learningLanguage, fromLanguage, xp }) => ({ id, learningLanguage, fromLanguage, xp })) }));
-	const { fromLanguage, learningLanguage } = user;
+	// Non-language courses (Math, Music, Chess) have no learningLanguage; fall back to the most-practiced language course
+	const { fromLanguage, learningLanguage } = user.learningLanguage
+		? user
+		: user.courses.filter((c) => c.learningLanguage).sort((a, b) => b.xp - a.xp)[0];
+	console.log(`Course: ${fromLanguage} -> ${learningLanguage}`);
 	let xp = 0;
 	for (let i = 0; i < process.env.LESSONS; i++) {
 		const session = await fetch(
