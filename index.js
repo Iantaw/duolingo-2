@@ -1,4 +1,9 @@
 try {
+	const json = async (res) => {
+		if (!res.ok) throw new Error(`${res.status} ${res.url}: ${(await res.text()).slice(0, 300)}`);
+		return res.json();
+	};
+
 	process.env.LESSONS = process.env.LESSONS ?? 1;
 
 	const headers = {
@@ -17,7 +22,7 @@ try {
 		{
 			headers,
 		},
-	).then((response) => response.json());
+	).then(json);
 
 	let xp = 0;
 	for (let i = 0; i < process.env.LESSONS; i++) {
@@ -95,7 +100,7 @@ try {
 				headers,
 				method: "POST",
 			},
-		).then((response) => response.json());
+		).then(json);
 
 		const response = await fetch(
 			`https://www.duolingo.com/2017-06-30/sessions/${session.id}`,
@@ -113,7 +118,7 @@ try {
 				headers,
 				method: "PUT",
 			},
-		).then((response) => response.json());
+		).then(json);
 
 		xp += response.xpGain;
 	}
@@ -124,4 +129,5 @@ try {
 	if (error instanceof Error) {
 		console.log(error.message);
 	}
+	process.exit(1);
 }
