@@ -24,6 +24,7 @@ try {
 		},
 	).then(json);
 
+	console.log(`Course: ${fromLanguage} -> ${learningLanguage}`);
 	let xp = 0;
 	for (let i = 0; i < process.env.LESSONS; i++) {
 		const session = await fetch(
